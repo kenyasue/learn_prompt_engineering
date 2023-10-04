@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "target": "ES2020",
+        "module": "NodeNext",
+        "outDir": "./jsout",
+        "rootDir": "./",
+        "sourceMap": true
+    },
+    "include": [
+        "./**/*"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}
