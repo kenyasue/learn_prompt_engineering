@@ -14,7 +14,7 @@ type slot = {
 type slots = Array<slot>;
 
 class LLMSlotfilling {
-    chatbot: Llama2ChatBot;
+    chatbot: ChatGPTChatBot;
     slots: slots;
     conversation: conversation;
     initialPrompt: string;
@@ -22,7 +22,7 @@ class LLMSlotfilling {
 
     constructor(initialPrompt: string, slots: string[]) {
 
-        this.chatbot = new Llama2ChatBot(initialPrompt, false);
+        this.chatbot = new ChatGPTChatBot(initialPrompt, false);
 
         this.initialPrompt = initialPrompt;
 
@@ -103,16 +103,15 @@ No need to say anything else.
 
             const systemPrompt = `
             ${this.initialPrompt}
-            You have to get following information from user:
+            You need to obtain the following information from the user:
             ${this.slots.reduce((text, o) => { if (o.answer.length == 0) text += "[" + o.inquiry + "]\n"; return text; }, "")}
-
-            At this memoment you already have:
-            ${this.slots.reduce((text, o) => { if (o.answer.length !== 0) text += o.inquiry + ":" + o.answer + "\n"; return text; }, "")}
             
-            In this turn you have to ask the information for ${this.nextSlot.inquiry}.
-
+            Currently, you have:
+            ${this.slots.reduce((text, o) => { if (o.answer.length !== 0) text += o.inquiry + ": " + o.answer + "\n"; return text; }, "")}
+            
+            For this step, you should request information regarding ${this.nextSlot.inquiry}.
+            
             Let's go.
-
         `;
 
             const newConversation: conversation = [
@@ -141,16 +140,13 @@ No need to say anything else.
             // generate thanks message
 
             const systemPrompt = `
-            ${this.initialPrompt}
-            You asked user to get following information:
+            You asked the user for the following information:
             ${this.slots.reduce((text, o) => { if (o.answer.length == 0) text += "[" + o.inquiry + "]\n"; return text; }, "")}
-
-            User answerd for all required question and the answers are following.
-            ${this.slots.reduce((text, o) => { if (o.answer.length !== 0) text += o.inquiry + ":" + o.answer + "\n"; return text; }, "")}
             
-            You have all information now, please appreciate to the user and ask for further question if he or she has.
-
-            Let's go.
+            The user has responded to all required questions. Here are their answers:
+            ${this.slots.reduce((text, o) => { if (o.answer.length !== 0) text += o.inquiry + ": " + o.answer + "\n"; return text; }, "")}
+            
+            You now have all the necessary information. Please express your gratitude and now you have all neccesary information.
         `;
 
             const newConversation: conversation = [
@@ -186,13 +182,14 @@ No need to say anything else.
     try {
 
         const apparelShotBot = new LLMSlotfilling(`
-        You are shop clark chat bot.You need to assist users to reach what they wants.
+You're the shop clerk chatbot. Your role is to help users find what they're looking for. 
+Engage with users in a friendly manner and feel free to use emojis. Interact as though you're a 28-year-old woman
         `, [
             "size", "color", "brand"
         ]);
 
         const initialMessage = `
-        Hi.I'm assistant chatbot of ABC shoes shop. How can I help you ?        
+Hi, I'm the assistant chatbot for ABC Shoe Shop. How can I assist you?     
             `;
 
         apparelShotBot.initialMessage(initialMessage);
@@ -206,11 +203,11 @@ No need to say anything else.
             const userInput = prompt("> ");
             const chatbotResponse = await apparelShotBot.receiveUserInput(userInput)
 
+            console.log(chatbotResponse.LLMResponse);
+
             if (chatbotResponse.slots.find(o => o.answer.length == 0)) {
-                console.log(chatbotResponse.LLMResponse);
                 continue;
             } else {
-                console.log(chatbotResponse.LLMResponse);
                 resultSlot = chatbotResponse.slots;
                 break;
             }
@@ -218,8 +215,8 @@ No need to say anything else.
 
         console.log(`
 Finished !
-Your input is.
-${resultSlot.map(o => o.inquiry + ":" + o.answer + "\n")}
+Customer input is.
+${resultSlot.reduce((text, o) => text += o.inquiry + ":" + o.answer + "\n", "")}
 `);
 
     } catch (e) {
