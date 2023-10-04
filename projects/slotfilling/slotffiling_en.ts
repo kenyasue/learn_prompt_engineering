@@ -14,7 +14,7 @@ type slot = {
 type slots = Array<slot>;
 
 class LLMSlotfilling {
-    chatbot: ChatGPTChatBot;
+    chatbot: Llama2ChatBot;
     slots: slots;
     conversation: conversation;
     initialPrompt: string;
@@ -22,7 +22,7 @@ class LLMSlotfilling {
 
     constructor(initialPrompt: string, slots: string[]) {
 
-        this.chatbot = new ChatGPTChatBot(initialPrompt, false);
+        this.chatbot = new Llama2ChatBot(initialPrompt, false);
 
         this.initialPrompt = initialPrompt;
 
